@@ -1,7 +1,7 @@
 /*
 * adapt-contrib-trickle
 * License - http://github.com/adaptlearning/adapt_framework/LICENSE
-* Maintainers - Kevin Corry <kevinc@learningpool.com>, Daryl Hedley <darylhedley@hotmail.com>
+* Maintainers - Kevin Corry <kevinc@learningpool.com>, Daryl Hedley <darylhedley@hotmail.com>, Dan Gray (dan@sinensis.co.uk)
 */
 define(function(require) {
 
@@ -24,8 +24,8 @@ define(function(require) {
                 this.listenTo(Adapt, 'blockView:preRender', this.hideView);
                 this.listenTo(Adapt, 'articleView:preRender', this.hideView);
                 this.listenTo(Adapt.blocks, 'change:_isComplete', this.blockSetToComplete);
-                this.listenTo(Adapt.blocks, 'change:_isVisible', this.elementSetToVisible);
-                this.listenTo(Adapt.articles, 'change:_isVisible', this.elementSetToVisible);
+                this.listenTo(Adapt.blocks, 'change:_isVisible', this.showNextUnlockedBlock);
+                this.listenTo(Adapt.articles, 'change:_isVisible', this.showNextUnlockedArticle);
                 this.render();
             },
 
@@ -86,48 +86,47 @@ define(function(require) {
                 this.pageElements[this.trickleCurrentIndex].set('_isVisible', true, {pluginName: "_trickle"});             
             },
 
-            elementSetToVisible: function(element) {
+            showNextUnlockedArticle: function(element) {
                 // Should fire anytime an element becomes visible
                 // Check against this elements index and show trickle if next element has _trickle
-                if (element.get('_type') == "article") {
 
-                    if (element.get('_isComplete')) {
-                        this.showItem(this.pageElements[this.trickleCurrentIndex]);
-                        if (this.trickleCurrentIndex == this.pageElements.length-1) {
-                            return;
-                        }
-                        this.changeTrickleCurrentIndex();
-                        this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
+                if (element.get('_isComplete')) {
+                    this.showItem(this.pageElements[this.trickleCurrentIndex]);
+                    if (this.trickleCurrentIndex == this.pageElements.length-1) {
                         return;
                     }
-
-                    this.showItem(this.pageElements[this.trickleCurrentIndex]);
                     this.changeTrickleCurrentIndex();
                     this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
-                } else if (element.get('_type') == "block") {
+                    return;
+                }
 
-                    if (element.get('_isComplete')) {
-                        this.showItem(this.pageElements[this.trickleCurrentIndex]);
-                        if (this.trickleCurrentIndex == this.pageElements.length-1) {
-                            this.changeTrickleCurrentIndex();
-                            return;
-                        }
-                        this.changeTrickleCurrentIndex();
-                        this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
-                        
-                        return;
-                    }
+                this.showItem(this.pageElements[this.trickleCurrentIndex]);
+                this.changeTrickleCurrentIndex();
+                this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
+            },
 
+            showNextUnlockedBlock: function(element) {
+
+                if (element.get('_isComplete')) {
                     this.showItem(this.pageElements[this.trickleCurrentIndex]);
                     if (this.trickleCurrentIndex == this.pageElements.length-1) {
                         this.changeTrickleCurrentIndex();
                         return;
                     }
                     this.changeTrickleCurrentIndex();
-                    if (!this.pageElements[this.trickleCurrentIndex].get('_trickle') 
-                    && this.pageElements[this.trickleCurrentIndex].get('_type') == 'block') {
-                        this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
-                    }
+                    this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
+                    
+                    return;
+                }
+
+                this.showItem(this.pageElements[this.trickleCurrentIndex]);
+                if (this.trickleCurrentIndex == this.pageElements.length-1) {
+                    this.changeTrickleCurrentIndex();
+                    return;
+                }
+                this.changeTrickleCurrentIndex();
+                if (!this.pageElements[this.trickleCurrentIndex].get('_trickle')) {
+                    this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
                 }
             },
 
