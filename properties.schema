@@ -37,23 +37,7 @@
           }
         },
         "block": {
-          "type":"object",
-          "properties":{
-            "_trickle": {
-              "type":"object",
-              "required":false,
-              "properties":{
-                "_isEnabled": {
-                  "type":"boolean",
-                  "required":false
-                },
-                "button": {
-                  "type":"string",
-                  "required":false
-                }
-              }
-            }
-          }
+          "type":"object"
         },
         "component": {
           "type":"object"
