@@ -233,10 +233,8 @@ define(function(require) {
     Adapt.on("pageView:preRender", function(view) {
         var model = view.model;
         var availableArticles;
-        var availableBlocks;
         var trickleArticles;
         availableArticles = model.getChildren();
-        availableBlocks = model.findDescendants('blocks');
 
         trickleArticles = _.filter(availableArticles.models, function(article) {
             if (article.get('_trickle')) {
