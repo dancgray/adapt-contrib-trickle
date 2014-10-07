@@ -87,6 +87,11 @@ define(function(require) {
             },
 
             showNextUnlockedArticle: function(element) {
+
+                if (this.trickleCurrentIndex == this.pageElements.length-1) {
+                    // though this current index might be the next block????
+                    return;
+                }
                 // Should fire anytime an element becomes visible
                 // Check against this elements index and show trickle if next element has _trickle
 
@@ -102,46 +107,43 @@ define(function(require) {
 
                 this.showItem(this.pageElements[this.trickleCurrentIndex]);
                 this.changeTrickleCurrentIndex();
+                // set the next element to visible
                 this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
             },
 
             showNextUnlockedBlock: function(element) {
 
-                if (element.get('_isComplete')) {
-                    this.showItem(this.pageElements[this.trickleCurrentIndex]);
-                    if (this.trickleCurrentIndex == this.pageElements.length-1) {
-                        this.changeTrickleCurrentIndex();
-                        return;
-                    }
-                    this.changeTrickleCurrentIndex();
-                    this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
-                    
-                    return;
-                }
-
-                this.showItem(this.pageElements[this.trickleCurrentIndex]);
+                // if this is the last element return
                 if (this.trickleCurrentIndex == this.pageElements.length-1) {
-                    this.changeTrickleCurrentIndex();
+                    // though this current index might be the next block????
+                    this.showItem(this.pageElements[this.trickleCurrentIndex]);
                     return;
                 }
+                // show the item
+                this.showItem(this.pageElements[this.trickleCurrentIndex]);
+                // increment the trickle index
                 this.changeTrickleCurrentIndex();
-                if (!this.pageElements[this.trickleCurrentIndex].get('_trickle')) {
+
+                // set the next element to visible
+                if (!this.pageElements[this.trickleCurrentIndex-1].get('_trickle')) {
                     this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
+                } else if (!this.pageElements[this.trickleCurrentIndex].get('_trickle') 
+                    && this.pageElements[this.trickleCurrentIndex].get('_type') == 'block') {
+                        this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
                 }
             },
 
             blockSetToComplete: function(block) {
-                // Index here is plus one
                 if (this.trickleCurrentIndex == this.pageElements.length) {
                     return;
                 }
-                if  (this.pageElements[this.trickleCurrentIndex-1].get('_trickle')){
+
+                var blockHasTrickle = block.get('_trickle');
+
+                if (blockHasTrickle) {
                     this.showTrickle();
-                } else if (this.pageElements[this.trickleCurrentIndex].get('_trickle')){
-                    this.showTrickle();
-                } else if (!this.pageElements[this.trickleCurrentIndex].get('_trickle')) {
-                    this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
-                }
+                } 
+
             },
 
             changeTrickleCurrentIndex: function() {
@@ -166,12 +168,15 @@ define(function(require) {
             },
 
             onTrickleButtonClicked: function(event) {
+
                 event.preventDefault();
                 var currentTrickleItem = this.pageElements[this.trickleCurrentIndex];
+                
                 if (this.pageElements[this.trickleCurrentIndex].get('_type') == 'article') {
-                    currentTrickleItem = this.pageElements[this.trickleCurrentIndex+1];
+                    currentTrickleItem = this.pageElements[this.trickleCurrentIndex];                    
                     this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
                 } else {
+
                     this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
                 }
                 this.hideTrickle();
@@ -184,7 +189,7 @@ define(function(require) {
 
             showTrickle: function () {
                 var buttonView = new TrickleButtonView({
-                    model: this.pageElements[this.trickleCurrentIndex-1]
+                    model: this.pageElements[this.trickleCurrentIndex]
                 });
 
                 this.$el.html(buttonView.$el).show();
@@ -230,7 +235,6 @@ define(function(require) {
         var availableArticles;
         var availableBlocks;
         var trickleArticles;
-        var trickleBlocks;
         availableArticles = model.getChildren();
         availableBlocks = model.findDescendants('blocks');
 
@@ -240,14 +244,8 @@ define(function(require) {
             }
         });
 
-        trickleBlocks = _.filter(availableBlocks.models, function(block) {
-            if (block.get('_trickle')) {
-                return block.get('_trickle')._isEnabled === true;
-            }
-        });
-
         // If trickle exists on the page
-        if (trickleArticles.length > 0 || trickleBlocks.length > 0) {
+        if (trickleArticles.length > 0) {
             setupTrickleView(model, trickleArticles);
         }
     });
