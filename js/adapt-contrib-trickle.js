@@ -110,10 +110,23 @@ define(function(require) {
 
             showNextUnlockedBlock: function(element) {
 
+                if (element.get('_isComplete')) {
+                    this.showItem(this.pageElements[this.trickleCurrentIndex]);
+                    if (this.trickleCurrentIndex == this.pageElements.length-1) {
+                        this.changeTrickleCurrentIndex();
+                        return;
+                    }
+                    this.changeTrickleCurrentIndex();
+                    this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
+                    
+                    return;
+                }
+
                 // if this is the last element return
                 if (this.trickleCurrentIndex == this.pageElements.length-1) {
                     // though this current index might be the next block????
                     this.showItem(this.pageElements[this.trickleCurrentIndex]);
+                    this.changeTrickleCurrentIndex();
                     return;
                 }
                 // show the item
