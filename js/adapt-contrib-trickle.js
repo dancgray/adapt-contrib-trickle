@@ -35,7 +35,6 @@ define(function(require) {
             },
 
             setupTrickle: function() {
-                this.trickleElements = [];
                 this.pageElements = [];
                 this.trickleCurrentIndex = 0;
                 this.hideAllElements();
@@ -87,13 +86,11 @@ define(function(require) {
             },
 
             showNextUnlockedArticle: function(element) {
-
-                if (this.trickleCurrentIndex == this.pageElements.length-1) {
-                    // though this current index might be the next block????
-                    return;
-                }
                 // Should fire anytime an element becomes visible
                 // Check against this elements index and show trickle if next element has _trickle
+                if (this.trickleCurrentIndex == this.pageElements.length-1) {
+                    return;
+                }
 
                 if (element.get('_isComplete')) {
                     this.showItem(this.pageElements[this.trickleCurrentIndex]);
@@ -124,7 +121,7 @@ define(function(require) {
                 // increment the trickle index
                 this.changeTrickleCurrentIndex();
 
-                // set the next element to visible
+                // set the next element to visible if current article is not trickle
                 if (!this.pageElements[this.trickleCurrentIndex-1].get('_trickle')) {
                     this.setItemToVisible(this.pageElements[this.trickleCurrentIndex]);
                 } else if (!this.pageElements[this.trickleCurrentIndex].get('_trickle') 
@@ -137,13 +134,10 @@ define(function(require) {
                 if (this.trickleCurrentIndex == this.pageElements.length) {
                     return;
                 }
-
                 var blockHasTrickle = block.get('_trickle');
-
                 if (blockHasTrickle) {
                     this.showTrickle();
-                } 
-
+                }
             },
 
             changeTrickleCurrentIndex: function() {
